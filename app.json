@@ -3,7 +3,7 @@
   "description": "A WhatsApp bot developed by Black-Tappy",
   "keywords": ["whatsapp", "bot", "nodejs"],
   "logo": "https://files.catbox.moe/yd9bnm.jpg",
-  "repository": "https://github.com/Black-Tappy/XEON-XMD",
+  "repository": "https://github.com/Bla-ck-Tappy/XEON-XMD",
   "stack": "container",
   "env": {
     "SESSION_ID": {
