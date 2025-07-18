@@ -1,0 +1,49 @@
+{
+  "name": "XEON-XTECH",
+  "description": "A WhatsApp bot developed by Black-Tappy",
+  "keywords": ["whatsapp", "bot", "nodejs"],
+  "logo": "https://files.catbox.moe/yd9bnm.jpg",
+  "repository": "https://github.com/Black-Tappy/XEON-XMD",
+  "stack": "container",
+  "env": {
+    "SESSION_ID": {
+      "description": "Your session ID (generated QR login string)",
+      "required": true,
+      "value": ""
+    },
+    "OWNER_NAME": {
+      "description": "Your name or bot owner's name",
+      "required": true,
+      "value": "Black-Tappy"
+    },
+    "OWNER_NUMBER": {
+      "description": "Bot owner's number in international format (e.g., 254759000340)",
+      "required": true,
+      "value": "254759000340"
+    },
+    "PREFIX": {
+      "description": "Command prefix, e.g. '.'",
+      "required": true,
+      "value": "."
+    },
+    "ALWAYS_ONLINE": {
+      "description": "Keep bot always online (true/false)",
+      "required": false,
+      "value": "false"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/DuckyTeam/heroku-buildpack-imagemagick.git"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+    },
+    {
+      "url": "https://github.com/clhuang/heroku-buildpack-webp-binaries.git"
+    }
+  ]
+}
