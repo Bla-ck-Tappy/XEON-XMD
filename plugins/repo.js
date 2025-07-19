@@ -9,7 +9,7 @@ const repo = async (m, sock) => {
     await m.React('🖇️'); // A gem for a precious repo!
     const repoUrl = 'https://github.com/Black-Tappy/XEON-XMD';
     // The imageUrl used for the main message content.
-    const imageUrl = 'https://files.catbox.moe/og4tsk.jpg'; 
+    const imageUrl = 'https://files.catbox.moe/og4tsk.jpg';
 
     try {
       const apiUrl = `https://api.github.com/repos/Black-Tappy/XEON-XMD`;
@@ -52,7 +52,18 @@ const repo = async (m, sock) => {
         };
 
         // Send the message with the stylishMessage content and the externalAdReply option.
-        sock.sendMessage(m.from, stylishMessage, { quoted: m, externalAdReply: externalAdReply });
+        sock.sendMessage(m.from, stylishMessage, {
+            quoted: m,
+            externalAdReply: externalAdReply,
+            mentionedJid: [m.sender],
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363369453603973@newsletter',
+                newsletterName: "ꊼεɸƞ-ꊼԵεϲཏ",
+                serverMessageId: 143
+            }
+        });
       } else {
         sock.sendMessage(m.from, { text: '⚠️ Could not retrieve full repo details. Please try again later. 🥺', quoted: m });
       }

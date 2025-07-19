@@ -34,18 +34,20 @@ const ownerContact = async (m, sock) => {
         image: { url: profilePictureUrl },
         caption: captionText,
         contextInfo: {
+          mentionedJid: [m.sender], 
           forwardingScore: 999,
           isForwarded: true,
           forwardedNewsletterMessageInfo: {
             newsletterName,
-            newsletterJid,
+            newsletterJid,  
+            serverMessageId: 143 
           },
         },
         externalAdReply: {
           title: "ꊼεɸƞ-ꊼԵεϲཏ ႪɸԵ",
           body: "Powered By Black-Tappy",
           thumbnailUrl: 'https://files.catbox.moe/6g5aq0.jpg',
-          sourceUrl: 'your_whatsapp_channel_link', // replace with your actual WhatsApp channel link
+          sourceUrl: 'https://whatsapp.com/channel/0029VasHgfG4tRrwjAUyTs10', 
           mediaType: 1,
           renderLargerThumbnail: false,
         },
@@ -78,8 +80,8 @@ END:VCARD`;
         m.from,
         {
           audio: audioBuffer,
-          mimetype: 'audio/mp4',
-          ptt: false,
+          mimetype: 'audio/mp4', // Changed mimetype to audio/mp4 as per common practice for audio files
+          ptt: false, // ptt: false means it's a regular audio message, not a voice note
         },
         { quoted: m }
       );
@@ -108,4 +110,4 @@ END:VCARD`;
   }
 };
 
-export default ownerContact;
+export default ownerContact;```

@@ -30,9 +30,6 @@ const uptime = async (m, sock) => {
 
     await m.React("⚡");
 
-    // Defining whatsappChannelLink with the original source URL as it was not defined.
-    const whatsappChannelLink = "https://whatsapp.com/channel/0029VasHgfG4tRrwjAUyTs10";
-
     await sock.sendMessage(m.from, {
       audio: { url: "https://files.catbox.moe/ucmkut.mp3" },
       mimetype: "audio/mp4",
@@ -46,13 +43,13 @@ const uptime = async (m, sock) => {
           newsletterName: "ꊼεɸƞ-ꊼԵεϲཏ",
           serverMessageId: 143
         },
-        externalAdReply: { // The existing externalAdReply object is replaced with the new one.
-          title: "ꊼεɸƞ-ꊼԵεϲཏ ႪɸԵ",
-          body: "Powered By Black-Tappy",
-          thumbnailUrl: 'https://files.catbox.moe/6g5aq0.jpg',
-          sourceUrl: whatsappChannelLink, // Using the defined whatsappChannelLink
+        externalAdReply: {
+          title: "🌐 Xeon Xtech Uptime - Status 🌐",
+          body: `${greeting} | UPTIME: ${days}D ${hours}H ${minutes}M ${seconds}S`,
+          thumbnailUrl: "https://files.catbox.moe/8k0enh.jpg",
+          sourceUrl: "https://whatsapp.com/channel/0029VasHgfG4tRrwjAUyTs10",
           mediaType: 1,
-          renderLargerThumbnail: false, // Changed from true to false as per the new definition
+          renderLargerThumbnail: true,
         },
       },
     }, { quoted: m });
