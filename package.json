@@ -1,20 +1,19 @@
 {
   "name": "XEON-XTECH",
   "version": "2.0.0",
-  "description": "🔥 Stylish WhatsApp Multi-Bot | Popkid GLE | Auto Mods + AI + Fun Tools + Media",
+  "description": "JavaScript Made By Black-Tappy",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name XEON-XTECH",
+    "start": "pm2 start index.js --deep-monitoring --attach --name POPKID-GLE",
     "stop": "pm2 stop XEON-XTECH",
     "restart": "pm2 restart XEON-XTECH"
   },
-  "keywords": ["black-tappy", "whatsapp-bot", "whatsapp md bot"],
+  "keywords": ["xeon-xtech", "whatsapp-bot", "whatsapp md bot"],
   "author": "Black-Tappy",
   "license": "ISC",
   "dependencies": {
-    "@whiskeysockets/baileys": "npm:baileys-pro@0.0.5",
-    "@rodrigogs/baileys-store" : "^1.0.1",
+    "@whiskeysockets/baileys": "npm:baileys-mod@latest",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google/generative-ai": "^0.9.0",
     "@hapi/boom": "^10.0.1",
@@ -61,6 +60,7 @@
     "stream": "^0.0.3",
     "tesseract.js": "^5.1.0",
     "translate-google-api": "^1.0.4",
+    "unzipper": "^0.10.14",
     "url": "^0.11.4",
     "uuid": "^9.0.1",
     "wasitech": "npm:@distube/ytdl-core",
