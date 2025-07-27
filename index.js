@@ -229,7 +229,7 @@ async function start() {
             version,
             logger: pino({ level: 'silent' }),
             printQRInTerminal: useQR,
-            browser: ["XEON-XTECH", "safari", "3.3"],
+            browser: ["XEON-XTECH", "safari", "10.0"],
             auth: state,
             getMessage: async (key) => {
                 if (store && typeof store.loadMessage === 'function') {
