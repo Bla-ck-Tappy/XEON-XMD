@@ -1,22 +1,22 @@
 {
-  "name": "XEON-XTECH",
+  "name": "SPIRITY-XMD",
   "version": "10.8.1",
-  "description": "XEON-XTECH multi device whatsapp bot",
+  "description": "Makamesco-MD multi device whatsapp bot",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "pm2 start index.js --deep-monitoring --attach --name XEON-XTECH",
-    "stop": "pm2 stop XEON-XTECH",
-    "restart": "pm2 restart XEON-XTECH"
+    "start": "pm2 start index.js --deep-monitoring --attach --name SPIRITY-XMD",
+    "stop": "pm2 stop SPIRITY-XMD",
+    "restart": "pm2 restart SPIRITY-XMD"
   },
-  "keywords": ["Xeon-Xtech", "whatsapp-bot", "whatsapp md bot"],
-  "author": "Black-Tappy",
+  "keywords": ["SPIRITY-XMD", "whatsapp-bot", "whatsapp md bot"],
+  "author": "Marcas",
   "license": "ISC",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google/generative-ai": "^0.9.0",
     "@hapi/boom": "^10.0.1",
-    "baileys-pro": "github:nstar-y/bail",
+    "baileys-pro": "latest",
     "@xaviabot/fb-downloader": "^1.0.14",
     "acrcloud": "^1.4.0",
     "api-dylux": "^1.8.3",
