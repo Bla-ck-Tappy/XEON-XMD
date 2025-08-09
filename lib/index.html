@@ -253,7 +253,7 @@
             const dateNum = now.getDate();
             const monthIndex = now.getMonth();
             const monthName = monthNames[monthIndex];
-            const year = now.getFullYear(); [[1]](https://codepen.io/WhisnuYs/pen/oNLBEvv)
+            const year = now.getFullYear(); 
 
             document.getElementById('day-emoji').textContent = getDayEmoji(dayIndex);
             document.getElementById('day-name').textContent = dayName;
@@ -278,7 +278,7 @@
                 navigator.getBattery().then(battery => {
                     const level = battery.level;
                     const charging = battery.charging;
-                    const batteryLevelPercentage = Math.round(level * 100); [[2]](https://developer.mozilla.org/en-US/docs/Web/API/Battery_Status_API)
+                    const batteryLevelPercentage = Math.round(level * 100);  
 
                     document.getElementById('battery-emoji').textContent = getBatteryEmoji(level, charging);
                     document.getElementById('battery-level').textContent = `${batteryLevelPercentage}% ${charging ? '(Charging)' : ''}`;
