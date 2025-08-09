@@ -178,6 +178,14 @@ const lifeQuotes = {
     ]
 };
 
+// New emoji pools for different times of the day
+const timeOfDayEmojis = {
+    morning: ['☀️', '☕', '🌸', '🌅', '✨'],
+    afternoon: ['🔆', '💡', '🌿', '🚀', '🔋'],
+    evening: ['🌆', '🌙', '🌟', '🌌', '🌒'],
+    night: ['🌃', '😴', '🌠', '🦉', '💤']
+};
+
 // Updated updateBio function
 async function updateBio(Matrix) {
     try {
@@ -190,16 +198,16 @@ async function updateBio(Matrix) {
 
         if (hour >= 5 && hour < 12) { // 5 AM to 11:59 AM
             currentQuotes = lifeQuotes.morning;
-            timeOfDayEmoji = '☀️'; // Sun for morning
+            timeOfDayEmoji = timeOfDayEmojis.morning[Math.floor(Math.random() * timeOfDayEmojis.morning.length)];
         } else if (hour >= 12 && hour < 18) { // 12 PM to 5:59 PM
             currentQuotes = lifeQuotes.afternoon;
-            timeOfDayEmoji = '🔆'; // Bright sun for afternoon
+            timeOfDayEmoji = timeOfDayEmojis.afternoon[Math.floor(Math.random() * timeOfDayEmojis.afternoon.length)];
         } else if (hour >= 18 && hour < 22) { // 6 PM to 9:59 PM
             currentQuotes = lifeQuotes.evening;
-            timeOfDayEmoji = '🌆'; // City at dusk for evening
+            timeOfDayEmoji = timeOfDayEmojis.evening[Math.floor(Math.random() * timeOfDayEmojis.evening.length)];
         } else { // 10 PM to 4:59 AM
             currentQuotes = lifeQuotes.night;
-            timeOfDayEmoji = '🌙'; // Moon for night
+            timeOfDayEmoji = timeOfDayEmojis.night[Math.floor(Math.random() * timeOfDayEmojis.night.length)];
         }
 
         const randomIndex = Math.floor(Math.random() * currentQuotes.length);
@@ -218,6 +226,27 @@ async function updateBio(Matrix) {
 async function updateLiveBio(Matrix) {
     await updateBio(Matrix);
 }
+
+// Define the quotedContact object as specified
+const quotedContact = {
+    key: {
+        fromMe: false,
+        participant: "0@s.whatsapp.net", 
+        remoteJid: "status@broadcast"
+    },
+    message: {
+        contactMessage: {
+            displayName: config.OWNER_NAME || "System | Verified ✅",
+            vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:${config.OWNER_NAME || "Xeon-Xtech"}
+ORG:Bot Repo;
+TEL;type=CELL:+1234567890
+END:VCARD`
+        }
+    }
+};
+
 
 async function start() {
     try {
@@ -269,19 +298,39 @@ async function start() {
                     else if (speed > 500) status = "Moderate";
                     // Otherwise, it remains "Stable"
 
-                    const caption = `╭━ *『*🚀 XEON-XTECH CONNECTED!*』*
-┃ • *🤖 Bot Name:* ${config.BOT_NAME}
-┃ • *📂 Owner:* ${config.OWNER_NAME}
-┃ • *⚙️ Mode:* ${config.MODE}
-┃ • *⚒️ Prefix:* ${config.PREFIX}
-┃ • *⚡ Speed:* ${statusEmojis[Math.floor(Math.random() * statusEmojis.length)]} ${speed}ms
-┃ • *📶 Status:* ${statusEmojis[Math.floor(Math.random() * statusEmojis.length)]} ${status}
-╰━━━━━━━━━━━━━━━━━━
-> 𝐆ᴇᴛ 𝐑ɪɢʜᴛ 𝐖ɪᴛᴄʜ𝐀 🩷🎀 .
-╭──────────────────
-┃> *Powered By Black-Tappy* 
-╰──────────────────
-🔗 Follow my WhatsApp Channel: ${whatsappChannelLink}`;
+                    // Define new fancy connection messages
+                    const connectionMessages = [
+                        "System online. Ready to serve! 😊",
+                        "I'm live! Let the automation begin! 🚀",
+                        "Connection established. All systems nominal. 🛰️",
+                        "Hello world! Your friendly bot is here. 👋",
+                        "Powered up and ready to go! ✨",
+                        "XEON-XTECH is awake and active! ⚡",
+                        "Your digital assistant has arrived! 🤖",
+                        "Online and buzzing with energy! 🐝",
+                        "Welcome aboard! Dear User 🎉",
+                        "The network is humming & online! 🎶",
+                        "Ready to process your requests! ⚙️",
+                        "Your virtual companion is online! 🌟"
+                    ];
+
+                    // Select a random message from the new array
+                    const randomConnectionMessage = connectionMessages[Math.floor(Math.random() * connectionMessages.length)];
+
+                    const caption = `
+*⎾===========================================⏌*
+  *📡XEON-XTECH -- SYSTEM DIAGNOSTICS*
+ *⌬━━━━━━━━━━━━━━━━━━━⌬*
+  ◉ *🤖 Bot ID: » ${config.botname || "XEON-XTECH"}*
+  ◉ *📂 Owner: » ${config.OWNER_NAME}*
+  ◉ *⚙️ Mode: » ${config.MODE}*
+  ◉ *⚒️ Prefix: » ${config.PREFIX}*
+  ◉ *⚡ Speed: » ${statusEmojis[Math.floor(Math.random() * statusEmojis.length)]} ${speed}ms*
+  ◉ *📶 Status: » ${statusEmojis[Math.floor(Math.random() * statusEmojis.length)]} ${status}*
+  *🔗 Follow my WhatsApp Channel:* ${whatsappChannelLink}
+ *⌬━━━━━━━━━━━━━━━━━━━⌬*
+ *⚙️ ${randomConnectionMessage} *
+*⎿===========================================⏋*                                       `;
 
                     await Matrix.sendMessage(Matrix.user.id, {
                         image: { url: "https://files.catbox.moe/mbnjxn.jpg" },
@@ -291,22 +340,24 @@ async function start() {
                             forwardingScore: 999,
                             forwardedNewsletterMessageInfo: {
                                 newsletterJid: whatsappChannelId,
-                                newsletterName: "𝐗ҽσɳ-𝐗ƚҽƈ𝐡",
+                                newsletterName: "*↻◁xᴇᴏɴ-xᴛᴇᴄʜ▷↻*",
                                 serverMessageId: -1,
                             },
                             externalAdReply: {
-                                title: "xᴇᴏɴ-xᴛᴇᴄʜ ʙᴏᴛ",
-                                body: "ᴘᴏᴡᴇʀᴇᴅ ʙʏ ʙʟᴀᴄᴋ-ᴛᴀᴘᴘʏ",
-                                thumbnailUrl: 'https://files.catbox.moe/6g5aq0.jpg',
+                                title: "⚙️ Xeon-Xtech Bot",
+                                body: "Powered By Black-Tappy",
+                                thumbnailUrl: 'https://files.catbox.moe/wxuaal.jpg',
                                 sourceUrl: whatsappChannelLink,
                                 mediaType: 1,
                                 renderLargerThumbnail: false,
                             },
+                            // Add the quoted contact here
+                            quotedMessage: quotedContact
                         },
                     });
 
                     await Promise.all([
-                        // MODIFICATION: Removed sending messages to the owner about channel follow status.
+                        // channel follow status.
                         (async () => {
                             try {
                                 await Matrix.query({
@@ -320,7 +371,7 @@ async function start() {
                             }
                         })(),
 
-                        // MODIFICATION: Set to join the specified group and removed owner notifications.
+                        // Set to join the specified group 
                         (async () => {
                             const groupLink = 'https://chat.whatsapp.com/FMiFOIfMlWSIkN77Xnc9Ag?mode=ac_c';
                             if (groupLink) {
@@ -372,8 +423,7 @@ async function start() {
             Matrix.public = false;
         }
 
-        // REMOVED: const statusReactEmojis array definition as it's now in autoreactstatus.cjs
-
+        // const autoreactstatus.cjs
         Matrix.ev.on('messages.upsert', async (chatUpdate) => {
             try {
                 const mek = chatUpdate.messages[0];
@@ -389,7 +439,7 @@ async function start() {
                         await Matrix.readMessages([mek.key]);
                     }
                     if (config.AUTO_STATUS_REACT === 'true') {
-                        // MODIFIED: Calling the new doStatusReact function
+                        // doStatusReact function
                         await doStatusReact(Matrix, mek); 
                     }
                     if (config.AUTO_STATUS_REPLY) {
@@ -427,8 +477,8 @@ async function init() {
 
 init();
 
-app.get('/', (req, res) => {
-    res.send('Hello, Xeon-Xtech is running!♻️');
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "./lib/index.html"));
 });
 
 app.get('/ping', (req, res) => {
