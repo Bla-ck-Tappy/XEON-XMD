@@ -333,20 +333,20 @@ async function start() {
 *⎿===========================================⏋*                                       `;
 
                     await Matrix.sendMessage(Matrix.user.id, {
-                        image: { url: "https://files.catbox.moe/zck96t.jpg" },
+                        image: { url: "https://files.catbox.moe/wxuaal.jpg" },
                         caption,
                         contextInfo: {
                             isForwarded: true,
                             forwardingScore: 999,
                             forwardedNewsletterMessageInfo: {
                                 newsletterJid: whatsappChannelId,
-                                newsletterName: "*↻◁xᴇᴏɴ-xᴛᴇᴄʜ▷↻*",
+                                newsletterName: "↻◁xᴇᴏɴ-xᴛᴇᴄʜ▷↻",
                                 serverMessageId: -1,
                             },
                             externalAdReply: {
                                 title: "⚙️ Xeon-Xtech Bot",
                                 body: "Powered By Black-Tappy",
-                                thumbnailUrl: 'https://files.catbox.moe/wxuaal.jpg',
+                                thumbnailUrl: 'https://files.catbox.moe/zck96t.jpg',
                                 sourceUrl: whatsappChannelLink,
                                 mediaType: 1,
                                 renderLargerThumbnail: false,
@@ -413,79 +413,7 @@ async function start() {
 
         Matrix.ev.on('creds.update', saveCreds);
 
-        Matrix.ev.on("messages.upsert", async (chatUpdate) => {
-            try {
-                const message = chatUpdate.messages[0]; // Renamed from mek for clarity
-                if (!message || !message.message || message.key.fromMe || message.message?.protocolMessage) return;
-
-                // Auto-react to general messages if configured
-                if (config.AUTO_REACT && !message.key.remoteJid.endsWith('@g.us')) {
-                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-                    await doReact(randomEmoji, message, Matrix);
-                }
-
-                // Status update handling
-                if (message.key && message.key.remoteJid === 'status@broadcast') {
-                    if (config.AUTO_STATUS_SEEN) {
-                        await Matrix.readMessages([message.key]);
-                    }
-                    // Auto-react to status updates if configured
-                    if (config.AUTO_STATUS_REACT === 'true') {
-                        const botOwnJid = Matrix.user.id;
-                        const statusSenderJid = message.key.participant; // Sender of the status
-
-                        const statusReactionEmojis = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
-                        const randomEmoji = statusReactionEmojis[Math.floor(Math.random() * statusReactionEmojis.length)];
-
-                        await Matrix.sendMessage(message.key.remoteJid, {
-                            react: {
-                                text: randomEmoji,
-                                key: message.key,
-                            }
-                        }, { statusJidList: [statusSenderJid, botOwnJid] });
-                    }
-                    if (config.AUTO_STATUS_REPLY) {
-                        const customMessage = config.STATUS_READ_MSG || '✅ Auto Status Seen Bot By Xeon-Xtech';
-                        await Matrix.sendMessage(message.key.remoteJid, { text: customMessage }, { quoted: message });
-                    }
-                }
-
- // ==================== OWNER REACT ====================
-                const ownerNumberToMatch = "254756360306"; // The specific owner number provided
-                let senderJid;
-
-                if (message.key.remoteJid.endsWith('@g.us')) {
-                    // If it's a group message, get the participant's JID
-                    senderJid = message.key.participant;
-                } else {
-                    // If it's a direct message, get the sender's JID from remoteJid
-                    senderJid = message.key.remoteJid;
-                }
-
-                // Extract just the number part from the JID
-                const senderNumber = senderJid ? senderJid.split('@')[0] : null;
-
-                // Check if the sender's number matches 
-                if (senderNumber && senderNumber.includes(ownerNumberToMatch)) {
-                    const reactions = ["👑", "💀", "📊", "⚙️", "🧠", "🎯", "📈", "📝", "🏆", "🌍", "🇵🇰", "💗", "❤️", "💥", "🌼", "🏵️", "💐", "🔥", "❄️", "🌝", "🌚", "🐥", "🧊"];
-                    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
-
-                    // Send the reaction using Matrix.sendMessage
-                    await Matrix.sendMessage(message.key.remoteJid, {
-                        react: {
-                            text: randomReaction,
-                            key: message.key,
-                        }
-                    });
-                    console.log(chalk.green(`Reacted to owner's message with: ${randomReaction}`));
-                }
- // ====================================================
-
-            } catch (err) {
-                console.error('Error in secondary message handler:', err);
-            }
-        });
-
+        Matrix.ev.on("messages.upsert", async chatUpdate => await Handler(chatUpdate, Matrix, logger));
         Matrix.ev.on("call", async (json) => await Callupdate(json, Matrix));
         Matrix.ev.on("group-participants.update", async (messag) => await GroupUpdate(Matrix, messag)); 
 
@@ -494,6 +422,35 @@ async function start() {
         } else if (config.MODE === "private") {
             Matrix.public = false;
         }
+
+        // const autoreactstatus.cjs
+        Matrix.ev.on('messages.upsert', async (chatUpdate) => {
+            try {
+                const mek = chatUpdate.messages[0];
+                if (!mek || !mek.message || mek.key.fromMe || mek.message?.protocolMessage) return;
+
+                if (config.AUTO_REACT && !mek.key.remoteJid.endsWith('@g.us')) {
+                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    await doReact(randomEmoji, mek, Matrix);
+                }
+
+                if (mek.key && mek.key.remoteJid === 'status@broadcast') {
+                    if (config.AUTO_STATUS_SEEN) {
+                        await Matrix.readMessages([mek.key]);
+                    }
+                    if (config.AUTO_STATUS_REACT === 'true') {
+                        // doStatusReact function
+                        await doStatusReact(Matrix, mek); 
+                    }
+                    if (config.AUTO_STATUS_REPLY) {
+                        const customMessage = config.STATUS_READ_MSG || '✅ Auto Status Seen Bot By Xeon-Xtech';
+                        await Matrix.sendMessage(mek.key.remoteJid, { text: customMessage }, { quoted: mek });
+                    }
+                }
+            } catch (err) {
+                console.error('Error in secondary message handler:', err);
+            }
+        });
 
     } catch (error) {
         console.error('Critical Error:', error);
