@@ -1,84 +1,128 @@
-import config from '../../config.cjs';
+const config = require('../../config.cjs');
 
-const antistickerCommand = async (m, Matrix) => {
-  const botNumber = await Matrix.decodeJid(Matrix.user.id);
-  const isCreator = [botNumber, config.OWNER_NUMBER + '@s.whatsapp.net'].includes(m.sender);
-  const prefix = config.PREFIX;
-  const cmd = m.body.startsWith(prefix) ? m.body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
+const NEWSLETTER_JID = '120363369453603973@newsletter';
 
-  // Command handler
-  if (cmd === 'antisticker') {
-    if (!isCreator) return m.reply("*Owner only command*");
-    
-    const subCmd = m.body.slice(prefix.length + cmd.length).trim().toLowerCase();
-    let response;
-
-    switch (subCmd) {
-      case 'on':
-        config.ANTI_STICKER = true;
-        response = "🛡️ Anti-Sticker protection enabled\nStickers will be automatically deleted";
-        break;
-      
-      case 'off':
-        config.ANTI_STICKER = false;
-        response = "🔓 Anti-Sticker protection disabled";
-        break;
-      
-      case 'status':
-        response = `Anti-Sticker Status: ${config.ANTI_STICKER ? '🟢 ACTIVE' : '🔴 INACTIVE'}`;
-        break;
-      
-      default:
-        response = `Anti-Sticker Commands:\n\n• ${prefix}antisticker on - Enable protection\n• ${prefix}antisticker off - Disable\n• ${prefix}antisticker status - Show status`;
-    }
-
-    return Matrix.sendMessage(m.from, { text: response }, { quoted: m });
-  }
-
-  // Sticker detection and deletion
-  if (config.ANTI_STICKER && m.message?.stickerMessage) {
-    try {
-      // Check if in group
-      if (m.isGroup) {
-        // Delete only for me in groups
-        await Matrix.sendMessage(m.from, { 
-          delete: {
-            id: m.key.id,
-            participant: m.sender,
-            remoteJid: m.from,
-            fromMe: false
-          }
-        });
-      } 
-      // Check if in private chat and I'm admin
-      else {
-        // Try to delete for everyone first
-        try {
-          await Matrix.sendMessage(m.from, { 
-            delete: m.key 
-          });
-        } catch (error) {
-          // If delete for everyone fails (not admin), delete just for me
-          await Matrix.sendMessage(m.from, { 
-            delete: {
-              id: m.key.id,
-              participant: m.sender,
-              remoteJid: m.from,
-              fromMe: false
-            }
-          });
+// 🧾 Define quoted contact
+const quotedContact = {
+    key: {
+        fromMe: false,
+        participant: "0@s.whatsapp.net",
+        remoteJid: "status@broadcast"
+    },
+    message: {
+        contactMessage: {
+            displayName: config.OWNER_NAME || "⚙️ Anti-Sticker 🚫",
+            vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:${config.OWNER_NAME || "Xeon-Xtech"}
+ORG:Bot Repo;
+TEL;type=CELL:+1234567890
+END:VCARD`
         }
-        
-        // Send warning in private chats
-        await Matrix.sendMessage(m.from, { 
-          text: `*Mmmh*`,
-          mentions: [m.sender] 
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting sticker:", error);
     }
-  }
 };
 
-export default antistickerCommand;
+// 🧩 Anti-Sticker Command
+const antistickerCommand = async (m, Matrix) => {
+    const botNumber = await Matrix.decodeJid(Matrix.user.id);
+    const isCreator = [botNumber, config.OWNER + '@s.whatsapp.net'].includes(m.sender);
+    const prefix = config.PREFIX;
+    const body = m.body || '';
+    const cmd = body.startsWith(prefix) ? body.slice(prefix.length).split(' ')[0].toLowerCase() : '';
+
+    // ⚡ Handler
+    if (cmd === 'antisticker') {
+        if (!isCreator) return m.reply("🚫 *Owner-only command*");
+
+        const subCmd = body.slice(prefix.length + cmd.length).trim().toLowerCase();
+        let response;
+
+        switch (subCmd) {
+            case 'on':
+                global.ANTI_STICKER = true;
+                response = `🛡️ *Anti-Sticker Protection:* ENABLED\nStickers will now be auto-deleted.`;
+                break;
+
+            case 'off':
+                global.ANTI_STICKER = false;
+                response = `🔓 *Anti-Sticker Protection:* DISABLED\nStickers are now allowed.`;
+                break;
+
+            case 'status':
+                response = `📊 *Anti-Sticker Status:* ${global.ANTI_STICKER ? '🟢 ACTIVE' : '🔴 INACTIVE'}`;
+                break;
+
+            default:
+                response = `📍 *Anti-Sticker Usage:*\n\n• ${prefix}antisticker on — Enable\n• ${prefix}antisticker off — Disable\n• ${prefix}antisticker status — Check status`;
+        }
+
+        return Matrix.sendMessage(m.chat, {
+            text: response,
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: NEWSLETTER_JID,
+                    newsletterName: "Xeon-Xtech Bot",
+                    serverMessageId: '',
+                },
+                externalAdReply: {
+                    title: "⚙️ Xeon-Xtech Bot",
+                    body: "Powered By Black-Tappy",
+                    thumbnailUrl: 'https://files.catbox.moe/wxuaal.jpg',
+                    sourceUrl: config.whatsappChannelLink || "https://whatsapp.com/channel/0029VaXEXAMPLE",
+                    mediaType: 1,
+                    renderLargerThumbnail: false,
+                }
+            }
+        }, { quoted: quotedContact });
+    }
+
+    // 🧽 Auto-delete stickers
+    if (global.ANTI_STICKER && m.message?.stickerMessage) {
+        try {
+            if (m.isGroup) {
+                await Matrix.sendMessage(m.chat, {
+                    delete: {
+                        remoteJid: m.chat,
+                        fromMe: false,
+                        id: m.key.id,
+                        participant: m.sender
+                    }
+                });
+            } else {
+                try {
+                    await Matrix.sendMessage(m.chat, { delete: m.key });
+                } catch {
+                    await Matrix.sendMessage(m.chat, {
+                        delete: {
+                            remoteJid: m.chat,
+                            fromMe: false,
+                            id: m.key.id,
+                            participant: m.sender
+                        }
+                    });
+                }
+
+                // 🗯️ Notify user
+                await Matrix.sendMessage(m.chat, {
+                    text: `🚫 *No stickers allowed*`,
+                    mentions: [m.sender],
+                    contextInfo: {
+                        forwardingScore: 999,
+                        isForwarded: true,
+                        forwardedNewsletterMessageInfo: {
+                            newsletterJid: NEWSLETTER_JID,
+                            newsletterName: "Xeon Xtech Bot",
+                            serverMessageId: '',
+                        }
+                    }
+                }, { quoted: quotedContact });
+            }
+        } catch (err) {
+            console.error('[❌ Anti-Sticker Error]:', err);
+        }
+    }
+};
+
+module.exports = antistickerCommand;
