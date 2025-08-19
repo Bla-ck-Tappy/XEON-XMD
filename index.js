@@ -21,7 +21,7 @@ import moment from 'moment-timezone';
 import axios from 'axios';
 import config from './config.cjs';
 import pkg from './lib/autoreact.cjs'; // Assuming this exports { emojis, doReact }
-// import { doStatusReact } from './lib/autoreactstatus.cjs'; // NEW: Import the status reaction function - This is replaced by inline logic
+import { doStatusReact } from './lib/autoreactstatus.cjs'; // NEW: Import the status reaction function
 import { fileURLToPath } from 'url';
 
 const { emojis, doReact } = pkg;
@@ -222,7 +222,7 @@ async function updateBio(Matrix) {
     }
 }
 
-// New updateLiveBio function
+// updateLiveBio now simply calls updateBio to reuse the logic
 async function updateLiveBio(Matrix) {
     await updateBio(Matrix);
 }
@@ -333,7 +333,7 @@ async function start() {
 *⎿===========================================⏋*                                       `;
 
                     await Matrix.sendMessage(Matrix.user.id, {
-                        image: { url: "https://files.catbox.moe/mbnjxn.jpg" },
+                        image: { url: "https://files.catbox.moe/zck96t.jpg" },
                         caption,
                         contextInfo: {
                             isForwarded: true,
@@ -413,7 +413,79 @@ async function start() {
 
         Matrix.ev.on('creds.update', saveCreds);
 
-        Matrix.ev.on("messages.upsert", async chatUpdate => await Handler(chatUpdate, Matrix, logger));
+        Matrix.ev.on("messages.upsert", async (chatUpdate) => {
+            try {
+                const message = chatUpdate.messages[0]; // Renamed from mek for clarity
+                if (!message || !message.message || message.key.fromMe || message.message?.protocolMessage) return;
+
+                // Auto-react to general messages if configured
+                if (config.AUTO_REACT && !message.key.remoteJid.endsWith('@g.us')) {
+                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    await doReact(randomEmoji, message, Matrix);
+                }
+
+                // Status update handling
+                if (message.key && message.key.remoteJid === 'status@broadcast') {
+                    if (config.AUTO_STATUS_SEEN) {
+                        await Matrix.readMessages([message.key]);
+                    }
+                    // Auto-react to status updates if configured
+                    if (config.AUTO_STATUS_REACT === 'true') {
+                        const botOwnJid = Matrix.user.id;
+                        const statusSenderJid = message.key.participant; // Sender of the status
+
+                        const statusReactionEmojis = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
+                        const randomEmoji = statusReactionEmojis[Math.floor(Math.random() * statusReactionEmojis.length)];
+
+                        await Matrix.sendMessage(message.key.remoteJid, {
+                            react: {
+                                text: randomEmoji,
+                                key: message.key,
+                            }
+                        }, { statusJidList: [statusSenderJid, botOwnJid] });
+                    }
+                    if (config.AUTO_STATUS_REPLY) {
+                        const customMessage = config.STATUS_READ_MSG || '✅ Auto Status Seen Bot By Xeon-Xtech';
+                        await Matrix.sendMessage(message.key.remoteJid, { text: customMessage }, { quoted: message });
+                    }
+                }
+
+ // ==================== OWNER REACT ====================
+                const ownerNumberToMatch = "254756360306"; // The specific owner number provided
+                let senderJid;
+
+                if (message.key.remoteJid.endsWith('@g.us')) {
+                    // If it's a group message, get the participant's JID
+                    senderJid = message.key.participant;
+                } else {
+                    // If it's a direct message, get the sender's JID from remoteJid
+                    senderJid = message.key.remoteJid;
+                }
+
+                // Extract just the number part from the JID
+                const senderNumber = senderJid ? senderJid.split('@')[0] : null;
+
+                // Check if the sender's number matches 
+                if (senderNumber && senderNumber.includes(ownerNumberToMatch)) {
+                    const reactions = ["👑", "💀", "📊", "⚙️", "🧠", "🎯", "📈", "📝", "🏆", "🌍", "🇵🇰", "💗", "❤️", "💥", "🌼", "🏵️", "💐", "🔥", "❄️", "🌝", "🌚", "🐥", "🧊"];
+                    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+
+                    // Send the reaction using Matrix.sendMessage
+                    await Matrix.sendMessage(message.key.remoteJid, {
+                        react: {
+                            text: randomReaction,
+                            key: message.key,
+                        }
+                    });
+                    console.log(chalk.green(`Reacted to owner's message with: ${randomReaction}`));
+                }
+ // ====================================================
+
+            } catch (err) {
+                console.error('Error in secondary message handler:', err);
+            }
+        });
+
         Matrix.ev.on("call", async (json) => await Callupdate(json, Matrix));
         Matrix.ev.on("group-participants.update", async (messag) => await GroupUpdate(Matrix, messag)); 
 
@@ -422,71 +494,6 @@ async function start() {
         } else if (config.MODE === "private") {
             Matrix.public = false;
         }
-
-        // Secondary message handler for auto-react and status updates
-        Matrix.ev.on('messages.upsert', async (chatUpdate) => {
-            try {
-                const mek = chatUpdate.messages[0];
-                if (!mek || !mek.message || mek.key.fromMe || mek.message?.protocolMessage) return;
-
-                const senderJid = mek.key.participant || mek.key.remoteJid; // Get sender JID
-                const ownerNumber = config.OWNER_NUMBER || "254759000340"; // Use config or fallback
-
-                // --- Owner React Logic ---
-                // Auto-react for owner messages if AUTO_REACT is enabled
-                if (config.AUTO_REACT && senderJid && senderJid.startsWith(ownerNumber) && !mek.key.remoteJid.endsWith('@broadcast')) {
-                    const reactions = ["👑", "💀", "📊", "⚙️", "🧠", "🎯", "📈", "📝", "🏆", "🌍", "🇵🇰", "💗", "❤️", "💥", "🌼", "🏵️", "💐", "🔥", "❄️", "🌝", "🌚", "🐥", "🧊"];
-                    const randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
-                    await Matrix.sendMessage(mek.key.remoteJid, {
-                        react: {
-                            text: randomReaction,
-                            key: mek.key,
-                        }
-                    });
-                    console.log(chalk.yellow(`👑 Reacted to owner message from ${senderJid} with ${randomReaction}`));
-                }
-                // --- END: Owner React Logic ---
-
-                // Existing auto-react logic for non-owner, non-group messages
-                // Ensure this doesn't double-react for the owner if the above block already handled it.
-                if (config.AUTO_REACT && !mek.key.remoteJid.endsWith('@g.us')) {
-                    // If the sender is NOT the owner, apply the general auto-react
-                    if (!senderJid || !senderJid.startsWith(ownerNumber)) {
-                        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-                        await doReact(randomEmoji, mek, Matrix);
-                    }
-                }
-
-                // Existing status handling
-                if (mek.key && mek.key.remoteJid === 'status@broadcast') {
-                    if (config.AUTO_STATUS_SEEN) {
-                        await Matrix.readMessages([mek.key]);
-                    }
-                    
-                    // --- Auto-react to status updates if configured ---
-                    // Replacing the doStatusReact call with the provided snippet's logic
-                    if (config.AUTO_STATUS_REACT === "true") {
-                        const reactions = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
-                        const randomEmoji = reactions[Math.floor(Math.random() * reactions.length)];
-                        await Matrix.sendMessage(mek.key.remoteJid, {
-                            react: {
-                                text: randomEmoji,
-                                key: mek.key,
-                            }
-                        });
-                        console.log(chalk.yellow(`👀 Reacted to status update from ${mek.key.participant || 'unknown'} with ${randomEmoji}`));
-                    }
-                    // --- END: Added New Status React Snippet ---
-
-                    if (config.AUTO_STATUS_REPLY) {
-                        const customMessage = config.STATUS_READ_MSG || '✅ Auto Status Seen Bot By Xeon-Xtech';
-                        await Matrix.sendMessage(mek.key.remoteJid, { text: customMessage }, { quoted: mek });
-                    }
-                }
-            } catch (err) {
-                console.error('Error in secondary message handler:', err);
-            }
-        });
 
     } catch (error) {
         console.error('Critical Error:', error);
