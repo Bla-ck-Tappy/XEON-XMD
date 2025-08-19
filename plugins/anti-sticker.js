@@ -70,7 +70,7 @@ const antistickerCommand = async (m, Matrix) => {
                     title: "⚙️ Xeon-Xtech Bot",
                     body: "Powered By Black-Tappy",
                     thumbnailUrl: 'https://files.catbox.moe/wxuaal.jpg',
-                    sourceUrl: config.whatsappChannelLink || "https://whatsapp.com/channel/0029VaXEXAMPLE",
+                    sourceUrl: config.whatsappChannelLink || "https://whatsapp.com/channel/0029VasHgfG4tRrwjAUyTs10",
                     mediaType: 1,
                     renderLargerThumbnail: false,
                 }
